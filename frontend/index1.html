@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Ledger — Crop Recommendation</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav class="topbar"><div class="wrap bar">
+  <a class="brand" href="#/">Field Ledger</a>
+  <div class="nav">
+    <a href="#/" data-view="recommend">Recommend</a>
+    <a href="#/check" data-view="check">Check a crop</a>
+    <a href="#/about" data-view="about">How it works</a>
+  </div>
+  <button type="button" class="btn sm js-new">+ New prediction</button>
+  <span class="api" id="apiDot"><i></i><span id="apiTxt">API</span></span>
+</div></nav>
+<div class="stepbar" id="stepbar"><div class="wrap"><div class="steps">
+  <a class="step" id="step1" href="#/">1 · Field details</a>
+  <a class="step" id="step2" href="#/budget">2 · Budget &amp; recommendation</a>
+  <a class="step" id="step3" href="#/check">3 · Check your crop</a>
+</div></div></div>
+
+<main>
+<div class="wrap">
+
+<!-- =====================================================
+     PAGE 1 — FIELD DETAILS
+     ===================================================== -->
+<section class="view" id="view-details">
+  <div class="hero">
+    <div class="eyebrow">Soil &amp; ledger analysis</div>
+    <h1 class="title">Field Ledger for<br><em>crop</em> selection.</h1>
+    <p class="lede">Enter your field details, add your budget to get the top three crops priced out, or test a crop of your own choice against your field. <a href="#/about">How does it work?</a></p>
+  </div>
+  <form class="sheet" id="detailsForm" novalidate>
+    <h2>Field intake</h2>
+    <p class="sub">Enter the soil, climate and land details of your field.</p>
+
+    <fieldset>
+      <legend>Soil nutrients (kg/ha)</legend>
+      <div class="grid">
+        <div class="field"><label for="nitrogen">Nitrogen (N)</label>
+          <input type="number" step="any" id="nitrogen" placeholder="90"></div>
+        <div class="field"><label for="phosphorus">Phosphorus (P)</label>
+          <input type="number" step="any" id="phosphorus" placeholder="42"></div>
+        <div class="field"><label for="potassium">Potassium (K)</label>
+          <input type="number" step="any" id="potassium" placeholder="43"></div>
+        <div class="field"><label for="ph">Soil pH</label>
+          <input type="number" step="any" id="ph" placeholder="6.5"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Climate &amp; soil type</legend>
+      <div class="grid">
+        <div class="field"><label for="temperature">Temperature <span class="unit">°C</span></label>
+          <input type="number" step="any" id="temperature" placeholder="25.5"></div>
+        <div class="field"><label for="humidity">Humidity <span class="unit">%</span></label>
+          <input type="number" step="any" id="humidity" placeholder="80"></div>
+        <div class="field"><label for="rainfall">Rainfall <span class="unit">mm</span></label>
+          <input type="number" step="any" id="rainfall" placeholder="200"></div>
+        <div class="field"><label for="soilType">Soil type</label>
+          <select id="soilType">
+            <option value="">Select…</option>
+            <option>Loam</option>
+            <option>Sandy loam</option>
+            <option>Clay</option>
+            <option>Clay loam</option>
+            <option>Sandy</option>
+            <option>Silty loam</option>
+            <option>Red soil</option>
+            <option>Black soil</option>
+          </select></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Land</legend>
+      <div class="grid two">
+        <div class="field"><label for="landArea">Land area <span class="unit">sq.ft</span></label>
+          <input type="number" step="any" id="landArea" placeholder="43560"></div>
+      </div>
+    </fieldset>
+
+    <div class="error" id="detailsError"></div>
+
+    <div class="actions">
+      <!-- BUTTON 1: page 1 → page 2 -->
+      <button type="submit" class="btn">Next: Budget &amp; recommendation →</button>
+      <span class="hint">Your details are saved for the next pages</span>
+    </div>
+  </form>
+</section>
+
+
+<!-- =====================================================
+     PAGE 2 — BUDGET + RECOMMENDATION
+     ===================================================== -->
+<section class="view flow" id="view-budget">
+  <aside class="summary" id="summary2"></aside>
+
+  <form class="sheet" id="budgetForm" novalidate>
+    <h2>Your budget</h2>
+    <p class="sub">Enter what you can spend. The top three crops are priced against it.</p>
+
+    <div class="grid two">
+      <div class="field"><label for="budget">Available budget <span class="unit">₹</span></label>
+        <input type="number" step="any" id="budget" placeholder="50000"></div>
+    </div>
+
+    <div class="error" id="budgetError" style="margin-top:18px"></div>
+
+    <div class="actions" style="margin-top:22px">
+      <button type="submit" class="btn" id="budgetBtn">Get recommendation</button>
+      <span class="hint" id="budgetHint"></span>
+    </div>
+  </form>
+
+  <section id="results"></section>
+
+  <!-- BUTTON 2: page 2 → page 3 -->
+  <div class="next-box">
+    <p>Have a crop in mind? Enter it and we will check it against the field details you entered.</p>
+    <div class="actions" style="margin:0"><button type="button" class="btn ghost" id="toCheckBtn">Check your own crop →</button>
+      <button type="button" class="btn ghost js-new">Start new prediction</button></div>
+  </div>
+</section>
+
+
+<!-- =====================================================
+     PAGE 3 — CHECK USER'S OWN CROP
+     ===================================================== -->
+<section class="view flow" id="view-check">
+  <aside class="summary" id="summary3"></aside>
+
+  <div class="sheet" id="checkGate" hidden>
+    <h2>Check a crop</h2>
+    <p class="sub" id="gateMsg"></p>
+    <a class="btn" id="gateBtn" href="#/"></a>
+  </div>
+
+  <form class="sheet" id="checkForm" novalidate>
+    <h2>Check your crop</h2>
+    <p class="sub">Type the crop you want to grow. We compare it with your field details and budget.</p>
+
+    <div class="grid two">
+      <div class="field"><label for="cropName">Crop name</label>
+        <input type="text" id="cropName" list="cropList" placeholder="e.g. Rice" autocomplete="off">
+        <datalist id="cropList"></datalist></div>
+    </div>
+
+    <div class="error" id="checkError" style="margin-top:18px"></div>
+
+    <div class="actions" style="margin-top:22px">
+      <button type="submit" class="btn" id="checkBtn">Check crop</button>
+      <button type="button" class="btn ghost" id="backToBudget">← Back to recommendation</button>
+      <button type="button" class="btn ghost js-new">Start new prediction</button>
+    </div>
+  </form>
+
+  <section id="checkResult"></section>
+</section>
+
+<!-- =====================================================
+     PAGE 4 — ABOUT / HOW IT WORKS
+     ===================================================== -->
+<section class="view" id="view-about">
+  <div class="hero">
+    <div class="eyebrow">About this project</div>
+    <h1 class="title">How Field Ledger picks a <em>crop</em> for your field.</h1>
+    <p class="lede">Field Ledger is an AI crop recommendation system. You describe your soil, climate, land and budget. It returns the three most promising crops, prices each one for your land, and names the best crop you can afford.</p>
+  </div>
+
+  <div class="pipe">
+    <div class="stage"><span class="n">1</span><h3>Predict</h3><p>A machine-learning model reads your soil and climate and lists its top 3 crops.</p></div>
+    <div class="stage"><span class="n">2</span><h3>Check the fit</h3><p>Each crop is scored against its ideal soil, pH, temperature and rainfall.</p></div>
+    <div class="stage"><span class="n">3</span><h3>Price it</h3><p>Cost per acre is scaled to your land and compared with your budget.</p></div>
+    <div class="stage"><span class="n">4</span><h3>Pick</h3><p>The affordable crop with the highest final score is your best pick.</p></div>
+  </div>
+
+  <div class="doc">
+    <section>
+      <h2>1. The machine-learning model</h2>
+      <p>The model learned from <b>2,200 field records</b> covering <b>22 crops</b> (100 records each). Every record has seven inputs: nitrogen, phosphorus, potassium, temperature, humidity, soil pH and rainfall.</p>
+      <p>Five algorithms were trained and compared on the same 80/20 train-test split: Decision Tree, Random Forest, KNN, SVM and Logistic Regression. The one with the best accuracy (F1 score breaks ties) is saved and used by the API. That was <b>Random Forest, at about 99.5% accuracy</b> on data it had never seen.</p>
+      <p>For your field the model gives each of the 22 crops a probability. The three highest become the candidates, and each probability (as a percentage) is the crop's <b>ML score</b>.</p>
+    </section>
+
+    <section>
+      <h2>2. Suitability check</h2>
+      <p>The ML score only looks at numbers. The suitability check adds farming knowledge from a table of ideal conditions for each crop, and gives four scores:</p>
+      <div class="scroll"><table class="check">
+        <thead><tr><th>Factor</th><th>Weight</th><th>How it is scored</th></tr></thead>
+        <tbody>
+          <tr><td>Soil type</td><td>30%</td><td>100 if your soil is one the crop accepts, otherwise 0</td></tr>
+          <tr><td>Soil pH</td><td>25%</td><td>100 inside the ideal range, lower the further outside it</td></tr>
+          <tr><td>Temperature</td><td>25%</td><td>same range rule</td></tr>
+          <tr><td>Rainfall</td><td>20%</td><td>same range rule</td></tr>
+        </tbody></table></div>
+      <p>Outside the range, a score drops in proportion to the distance from the range divided by the range's width, and never goes below 0. The four scores combine into the <b>Suitability score</b>. Then the two scores are blended:</p>
+      <div class="formula">Final score = 65% × ML score + 35% × Suitability score</div>
+    </section>
+
+    <section>
+      <h2>3. Budget check</h2>
+      <p>Each crop has an estimated growing cost per acre. Your land is converted from square feet to acres (1 acre = 43,560 sq.ft) and the cost is scaled to fit.</p>
+      <div class="formula">Estimated cost = cost per acre × (land area ÷ 43,560)
+Affordable if Estimated cost ≤ your budget
+Budget score = min(budget ÷ Estimated cost × 100, 100)</div>
+      <p>A budget score of 100% means the crop fits inside your budget. A lower score means it uses up more than you have.</p>
+    </section>
+
+    <section>
+      <h2>4. Best affordable crop</h2>
+      <p>Among the top three, only crops marked <b>Affordable</b> are eligible. The one with the highest final score is shown as your best affordable crop. If none of the three fits your budget, Field Ledger says so instead of forcing a pick. Your budget filters the list; it does not change the ranking.</p>
+    </section>
+
+    <section>
+      <h2>Check your own crop (step 3)</h2>
+      <p>If you already have a crop in mind, step 3 tests it against your field. It applies the same suitability rules and cost formula in your browser, using a built-in table of the 22 crops. It also asks the API whether the ML model puts your crop in its top 3 for this field.</p>
+    </section>
+
+    <section>
+      <h2>What each input means</h2>
+      <div class="scroll"><table class="check">
+        <thead><tr><th>Input</th><th>Unit</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Nitrogen, Phosphorus, Potassium</td><td>kg/ha</td><td>Main soil nutrients, from a soil test</td></tr>
+          <tr><td>Soil pH</td><td>0 – 14</td><td>How acidic or alkaline the soil is</td></tr>
+          <tr><td>Temperature</td><td>°C</td><td>Typical temperature in your area</td></tr>
+          <tr><td>Humidity</td><td>%</td><td>Relative humidity of the air</td></tr>
+          <tr><td>Rainfall</td><td>mm</td><td>Rain during the growing season</td></tr>
+          <tr><td>Soil type</td><td>—</td><td>Loam, clay, sandy loam and so on</td></tr>
+          <tr><td>Land area</td><td>sq.ft</td><td>Size of the field you will plant</td></tr>
+          <tr><td>Budget</td><td>₹</td><td>Total amount you can spend on the crop</td></tr>
+        </tbody></table></div>
+    </section>
+
+    <section>
+      <h2>Under the hood</h2>
+      <p>The backend is a <b>FastAPI</b> service. It uses <b>scikit-learn</b> and <b>joblib</b> for the saved model, <b>pandas</b> for the crop tables and <b>pydantic</b> to validate requests. This page is plain HTML, CSS and JavaScript that calls the API. It has two endpoints: <b>GET /</b> reports that the API is running, and <b>POST /recommend</b> takes the field details and budget and returns the three crops with all their scores.</p>
+      <div class="formula">app/         FastAPI app, routes, schemas
+app/core/    prediction.py · suitability.py · economic.py
+models/      saved Random Forest model, scaler, model info
+dataset/     training data, crop requirements, crop costs
+training/    script that trains and compares the models
+frontend/    this web page</div>
+    </section>
+
+    <section>
+      <h2>Good to know</h2>
+      <ul>
+        <li>Crop costs are <b>prototype estimates</b>, not real market prices. Replace them with local, seasonal figures for serious planning.</li>
+        <li>Soil matching uses exact names. A crop listed for “Well-drained loam” will not match a field entered as plain “Loam”, so its soil score is 0.</li>
+        <li>Only the ML model's top 3 crops are considered, out of 22 crops in total.</li>
+        <li>Scores show how well conditions match. They are not a promise of yield or profit. Confirm with a local agriculture officer before you plant.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="cta">
+    <a class="btn" href="#/">Start a recommendation →</a>
+    <a class="btn ghost" href="#/check">Check a crop</a>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;width:100%">
+    <span>API endpoint —
+      <input type="text" id="apiBase" value="http://127.0.0.1:8000" spellcheck="false">
+    </span>
+    <span>Field Ledger · local FastAPI client</span>
+  </div>
+</footer>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>

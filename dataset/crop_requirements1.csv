@@ -1,0 +1,23 @@
+Crop,Soil_Type,Min_pH,Max_pH,Min_Temperature,Max_Temperature,Min_Rainfall,Max_Rainfall
+rice,Clay/Loam,5.5,7.0,20,35,150,300
+maize,Loam/Sandy loam,5.5,7.5,18,32,50,200
+chickpea,Well-drained loam/Sandy loam,6.0,8.0,15,30,40,100
+kidneybeans,Well-drained loam,5.5,6.5,15,25,60,150
+pigeonpeas,Well-drained loam,6.5,7.5,20,35,60,150
+mothbeans,Sandy/Sandy loam,6.0,8.0,25,35,20,60
+mungbean,Loam/Sandy loam,6.2,7.2,25,35,35,100
+blackgram,Loam/Sandy loam,6.0,7.5,25,35,40,100
+lentil,Well-drained loam,6.0,7.5,18,30,30,100
+pomegranate,Well-drained loam/Sandy loam,5.5,7.5,20,35,50,100
+banana,Deep fertile loam,6.0,7.5,20,35,100,250
+mango,Well-drained loam,5.5,7.5,24,35,75,250
+grapes,Well-drained sandy loam/loam,6.0,7.5,15,35,50,100
+watermelon,Sandy loam,6.0,7.5,22,35,40,100
+muskmelon,Sandy loam,6.0,7.5,22,35,40,100
+apple,Well-drained loam,5.5,7.0,10,24,50,150
+orange,Well-drained loam/Sandy loam,5.5,7.5,20,30,75,150
+papaya,Well-drained loam,6.0,7.0,21,33,100,200
+coconut,Sandy loam/Loam,5.5,8.0,20,32,100,250
+cotton,Deep well-drained loam/Black soil,5.5,8.5,21,35,50,120
+jute,Loam/Sandy loam,6.0,7.5,24,35,150,250
+coffee,Well-drained loam,5.0,6.5,18,28,150,300
